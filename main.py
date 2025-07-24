@@ -3,16 +3,16 @@ import requests, os
 from pysondb import db
 from utils import generate_shades
 from bs4 import BeautifulSoup
+import base64
 
 app = Flask(__name__)
 db = db.getDb("db.json")
 
 
-@app.route('/proxy_emoji/<code>')
-def proxy_emoji(code):
+def emoji_to_data_uri(code):
     url = f"https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/{code}.svg"
-    response = requests.get(url)
-    return app.response_class(response.content, mimetype='image/svg+xml')
+    response = requests.get(url).text
+    return "data:image/svg+xml;base64," + base64.b64encode(response.encode('utf-8')).decode('utf-8')
 
 
 @app.route('/<username>')
@@ -58,7 +58,7 @@ def home(username):
         chars = list(country_code_to_flag_emoji(country.upper()))
         chars = [str(hex(ord(c)))[2:] for c in chars]
         print(chars)
-        emojis.append(f"https://{request.host}/proxy_emoji/{'-'.join(chars)}")
+        emojis.append(emoji_to_data_uri('-'.join(chars)))
     print(emojis)
 
     shades = generate_shades("#ADD8E6", len(countries))
