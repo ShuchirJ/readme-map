@@ -10,6 +10,7 @@ A Github README plugin to generate map-data based on profile visits!
    ```markdown
    ![Map](https://readme-map.shuchir.dev/USERNAME_HERE?theme=light)
    ```
+2. Make sure to add a hyperlink to your map as well! Maybe something along the lines of "Add yourself to the map"- Github proxies the svg through it's own servers, so you won't be able to get a user's location through the README directly.
 
 (or alternatively, use `?theme=dark` for dark mode)
 2. Replace `USERNAME_HERE` with your GitHub username.
