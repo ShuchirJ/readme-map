@@ -1,2 +1,3 @@
-vercelpy
 flask
+requests
+pysondb
