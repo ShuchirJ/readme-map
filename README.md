@@ -17,8 +17,9 @@ A Github README plugin to generate map-data based on profile visits!
    ```
    (or alternatively, use `?theme=light` for light mode)
 2. Replace `USERNAME_HERE` with your GitHub username.
-3. Deploy the action workflow in actions_template.yml to your repository.
-4. Run the workflow to generate the initial map.
+3. Visit https://readme-map.shuchir.dev/add/USERNAME_HERE so readme-map has some data to generate a map from.
+4. Deploy the action workflow in actions_template.yml to your repository.
+5. Run the workflow to generate the initial map.
 
 # Self-Hosting
 1. Clone the repository:

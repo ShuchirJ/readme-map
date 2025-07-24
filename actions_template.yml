@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - run: pip install requests 
 
       - name: Fetch map data
         id: fetch_map
@@ -27,14 +28,8 @@ jobs:
           url = f'https://readme-map.shuchir.dev/{github_username}'
           resp = requests.get(url)
           resp.raise_for_status()
-          os.environ['map_id'] = resp.text.strip()
+          map_id = resp.text.strip()
 
-        shell: python
-
-      - name: Update README.md image
-        run: |
-          import os
-          map_id = os.environ['map_id']
           image_url = f"https://readme-map.shuchir.dev/map/{map_id}?theme=dark"
           readme_path = 'README.md'
           content = ""
@@ -49,6 +44,7 @@ jobs:
                   self.image_found = False
 
               def handle_starttag(self, tag, attrs):
+                  global content, image_url
                   if tag == 'img':
                       for attr in attrs:
                           if attr[0] == 'src' and 'readme-map.shuchir.dev' in attr[1]:
