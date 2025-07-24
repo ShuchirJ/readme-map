@@ -2,3 +2,4 @@ flask
 requests
 pysondb
 bs4
+lxml
