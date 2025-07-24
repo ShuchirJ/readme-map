@@ -72,6 +72,10 @@ def home(username):
             tag['fill'] = color
         mapData = str(soup)
 
+    # Remove XML declaration from mapData if present
+    if mapData.startswith('<?xml'):
+        mapData = mapData.split('?>', 1)[-1].lstrip()
+
     svgData = svgData.replace("{{map}}", mapData)
     svgaData = svgData.replace("{{flag1}}", emojis[0] if len(emojis) > 0 else "")
     svgaData = svgaData.replace("{{flag2}}", emojis[1] if len(emojis) > 1 else "")
