@@ -7,6 +7,14 @@ from bs4 import BeautifulSoup
 app = Flask(__name__)
 db = db.getDb("db.json")
 
+
+@app.route('/proxy_emoji/<code>')
+def proxy_emoji(code):
+    url = f"https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/{code}.svg"
+    response = requests.get(url)
+    return app.response_class(response.content, mimetype='image/svg+xml')
+
+
 @app.route('/<username>')
 def home(username):
 
@@ -50,7 +58,7 @@ def home(username):
         chars = list(country_code_to_flag_emoji(country.upper()))
         chars = [str(hex(ord(c)))[2:] for c in chars]
         print(chars)
-        emojis.append(f"https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/{'-'.join(chars)}.svg")
+        emojis.append(f"/proxy_emoji/{'-'.join(chars)}")
     print(emojis)
 
     shades = generate_shades("#ADD8E6", len(countries))
