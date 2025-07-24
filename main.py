@@ -89,7 +89,10 @@ def home(username):
     svgData = svgData.replace("{{place4}}", top5Locations[3]['location'] if len(top5Locations) > 3 else "")
     svgData = svgData.replace("{{place5}}", top5Locations[4]['location'] if len(top5Locations) > 4 else "")
 
-    return app.response_class(svgData, mimetype='image/svg+xml')
+    response = app.response_class(svgData, mimetype='image/svg+xml')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    return response
 
 
 def country_code_to_flag_emoji(country_code):
