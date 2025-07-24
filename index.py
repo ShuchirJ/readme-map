@@ -2,12 +2,16 @@ from flask import Flask, request
 import requests, os
 from pysondb import db
 from utils import generate_shades
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 db = db.getDb("db.json")
 
 @app.route('/<username>')
 def home(username):
+
+    dark_mode = request.args.get('theme', 'light').lower() == 'dark'
+
     client_ip = request.remote_addr
     if client_ip == "127.0.0.1": client_ip = "108.156.11.0"
     r = requests.get(f'http://ip-api.com/json/{client_ip}')
@@ -47,10 +51,22 @@ def home(username):
 
     shades = generate_shades("#ADD8E6", len(countries))
 
-    svgData = open("template.svg", "r").read()
+    svgData = open("light_template.svg", "r").read() if not dark_mode else open("dark_template.svg", "r").read()
     mapData = open("worldmap.svg", "r").read()
+    if dark_mode:
+        soup = BeautifulSoup(mapData, "xml")
+        for tag in soup.find_all(['g', 'path']):
+            if tag.has_attr('id') and len(tag['id']) == 2:
+                tag['fill'] = "white"
+        mapData = str(soup)
+
     for country in countries:
-        mapData = mapData.replace(f'id="{country}"', f'id="{country}" fill="{shades[countries.index(country)]}"')
+        soup = BeautifulSoup(mapData, "xml")
+        color = shades[countries.index(country)]
+        tag = soup.find(id=country)
+        if tag:
+            tag['fill'] = color
+        mapData = str(soup)
 
     svgData = svgData.replace("{{map}}", mapData)
     svgaData = svgData.replace("{{flag1}}", emojis[0] if len(emojis) > 0 else "")

@@ -16,6 +16,7 @@
     text {
       font-family: "IBM Plex Mono", sans-serif;
       font-size: 20px;
+    fill: black;
     }
 
     .emoji {
