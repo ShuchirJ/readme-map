@@ -13,6 +13,10 @@ def home(username):
     dark_mode = request.args.get('theme', 'light').lower() == 'dark'
 
     client_ip = request.remote_addr
+    if 'X-Forwarded-For' in request.headers:
+        client_ip = request.headers['X-Forwarded-For'].split(',')[0].strip()
+    elif 'X-Real-IP' in request.headers:
+        client_ip = request.headers['X-Real-IP']
     if client_ip == "127.0.0.1": client_ip = "108.156.11.0"
     r = requests.get(f'http://ip-api.com/json/{client_ip}')
     data = r.json()
