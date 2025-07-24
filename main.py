@@ -85,7 +85,7 @@ def home(username):
     svgData = svgData.replace("{{place4}}", top5Locations[3]['location'] if len(top5Locations) > 3 else "")
     svgData = svgData.replace("{{place5}}", top5Locations[4]['location'] if len(top5Locations) > 4 else "")
 
-    return svgData
+    return app.response_class(svgData, mimetype='image/svg+xml')
 
 
 def country_code_to_flag_emoji(country_code):
