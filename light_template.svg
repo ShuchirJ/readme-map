@@ -48,4 +48,5 @@
         <image href="{{flag5}}" x="500" y="220" height="24" width="40"/>
         <text x="545" y="240">{{place5}}</text>
     </g>
+    {{other_elements}}
 </svg>

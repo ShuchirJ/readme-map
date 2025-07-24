@@ -10,12 +10,15 @@ A Github README plugin to generate map-data based on profile visits!
 
 # Usage
 1. Add the following to your README:
-   ```markdown
-   ![Map](https://readme-map.shuchir.dev/USERNAME_HERE?theme=light)
+   ```html
+   <a href="https://readme-map.shuchir.dev/add/USERNAME_HERE" target="_blank">
+       <img src="https://readme-map.shuchir.dev/map/?theme=dark" alt="Map of my profile visits" />
+   </a>
    ```
-   (or alternatively, use `?theme=dark` for dark mode)
-2. Make sure to add a hyperlink to your map as well! Maybe something along the lines of "Add yourself to the map"- Github proxies the svg through it's own servers, so you won't be able to get a user's location through the README directly.
-3. Replace `USERNAME_HERE` with your GitHub username.
+   (or alternatively, use `?theme=light` for light mode)
+2. Replace `USERNAME_HERE` with your GitHub username.
+3. Deploy the action workflow in actions_template.yml to your repository.
+4. Run the workflow to generate the initial map.
 
 # Self-Hosting
 1. Clone the repository:

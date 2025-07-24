@@ -1,22 +1,15 @@
 from flask import Flask, request
 import requests, os
 from pysondb import db
-from utils import generate_shades
+from utils import *
 from bs4 import BeautifulSoup
-import base64
 
 app = Flask(__name__)
 db = db.getDb("db.json")
 
 
-def emoji_to_data_uri(code):
-    url = f"https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/{code}.svg"
-    response = requests.get(url).text
-    return "data:image/svg+xml;base64," + base64.b64encode(response.encode('utf-8')).decode('utf-8')
-
-
-@app.route('/<username>')
-def home(username):
+@app.route('/add/<username>')
+def add(username):
 
     dark_mode = request.args.get('theme', 'light').lower() == 'dark'
 
@@ -97,21 +90,92 @@ def home(username):
     svgData = svgData.replace("{{place4}}", top5Locations[3]['location'] if len(top5Locations) > 3 else "")
     svgData = svgData.replace("{{place5}}", top5Locations[4]['location'] if len(top5Locations) > 4 else "")
 
+    svgaData = svgData.replace("{{other_elements}}", "")
+
+    return """<style>@font-face {
+      font-family: "IBM Plex Mono";
+      src:
+        url("/static/fonts/IBMPlexMono-Regular.ttf") format("truetype")
+    }
+
+    h1 {
+      font-family: "IBM Plex Mono", sans-serif;
+    }</style>
+    <body style="padding: 35px;"><h1>Location added! README will be updated within the hour. Live map:</h1><br>""" + svgData + """</body>"""
+
+
+@app.route('/map/<locs>')
+def map(locs):
+    dark_mode = request.args.get('theme', 'light').lower() == 'dark'
+
+    countries = []
+    locations = locs.split(";")
+    for loc in locations:
+        country = loc.split(", ")[1]
+        countries.append(country)
+    countries = [country.lower() for country in countries]
+    print(countries)
+
+    top5Locations = locations[:5]
+
+    emojis = []
+    for country in top5Locations:
+        country = country.split(", ")[1]
+        chars = list(country_code_to_flag_emoji(country.upper()))
+        chars = [str(hex(ord(c)))[2:] for c in chars]
+        print(chars)
+        emojis.append(emoji_to_data_uri('-'.join(chars)))
+    print(emojis)
+
+    shades = generate_shades("#ADD8E6", len(countries))
+
+    svgData = open("light_template.svg", "r").read() if not dark_mode else open("dark_template.svg", "r").read()
+    mapData = open("worldmap.svg", "r").read()
+    if dark_mode:
+        soup = BeautifulSoup(mapData, "xml")
+        for tag in soup.find_all(['g', 'path']):
+            if tag.has_attr('id') and len(tag['id']) == 2:
+                tag['fill'] = "white"
+        mapData = str(soup)
+
+    for country in countries:
+        soup = BeautifulSoup(mapData, "xml")
+        color = shades[countries.index(country)]
+        tag = soup.find(id=country)
+        if tag:
+            tag['fill'] = color
+        mapData = str(soup)
+
+    # Remove XML declaration from mapData if present
+    if mapData.startswith('<?xml'):
+        mapData = mapData.split('?>', 1)[-1].lstrip()
+
+    svgData = svgData.replace("{{map}}", mapData)
+    svgaData = svgData.replace("{{flag1}}", emojis[0] if len(emojis) > 0 else "")
+    svgaData = svgaData.replace("{{flag2}}", emojis[1] if len(emojis) > 1 else "")
+    svgaData = svgaData.replace("{{flag3}}", emojis[2] if len(emojis) > 2 else "")
+    svgaData = svgaData.replace("{{flag4}}", emojis[3] if len(emojis) > 3 else "")
+    svgaData = svgaData.replace("{{flag5}}", emojis[4] if len(emojis) > 4 else "")
+
+    svgData = svgaData.replace("{{place1}}", top5Locations[0] if len(top5Locations) > 0 else "")
+    svgData = svgData.replace("{{place2}}", top5Locations[1] if len(top5Locations) > 1 else "")
+    svgData = svgData.replace("{{place3}}", top5Locations[2] if len(top5Locations) > 2 else "")
+    svgData = svgData.replace("{{place4}}", top5Locations[3] if len(top5Locations) > 3 else "")
+    svgData = svgData.replace("{{place5}}", top5Locations[4] if len(top5Locations) > 4 else "")
+
+    svgData = svgData.replace("{{other_elements}}", """<text x="10" y="380" font-size="12">Click to add your location</text>
+    <text x="500" y="380" font-size="12">Updated within the hour</text>""")
+
     response = app.response_class(svgData, mimetype='image/svg+xml')
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     return response
 
-
-def country_code_to_flag_emoji(country_code):
-    """
-    Convert a 2-letter country code to its emoji flag.
-    Example: 'US' → '🇺🇸'
-    """
-    if len(country_code) != 2:
-        raise ValueError("Country code must be 2 letters")
-    base = 0x1F1E6  # Unicode codepoint for 'REGIONAL INDICATOR SYMBOL LETTER A'
-    return ''.join(chr(base + ord(char.upper()) - ord('A')) for char in country_code)
-
+@app.route('/<username>')
+def getConfig(username):
+    locations = db.getBy({"username": username})
+    locations = sorted(locations, key=lambda x: x['value'], reverse=True)
+    print(locations)
+    return ";".join([loc['location'] for loc in locations]) if locations else "No locations found for this user."
 
 app.run(host='0.0.0.0', debug=True)
