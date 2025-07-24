@@ -58,7 +58,7 @@ def home(username):
         chars = list(country_code_to_flag_emoji(country.upper()))
         chars = [str(hex(ord(c)))[2:] for c in chars]
         print(chars)
-        emojis.append(f"/proxy_emoji/{'-'.join(chars)}")
+        emojis.append(f"https://{request.host}/proxy_emoji/{'-'.join(chars)}")
     print(emojis)
 
     shades = generate_shades("#ADD8E6", len(countries))
