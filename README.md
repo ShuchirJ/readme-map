@@ -25,5 +25,5 @@ A Github README plugin to generate map-data based on profile visits!
    ```
 3. Run the app:
    ```bash
-   python index.py
+   python main.py
    ```
