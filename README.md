@@ -1,4 +1,7 @@
+# readme-map
 A Github README plugin to generate map-data based on profile visits!
+
+<img width="990" height="490" alt="image" src="https://github.com/user-attachments/assets/9eb622a2-bcfb-447f-acd1-ab62ad00b6d9" />
 
 # Features
 - Light/dark mode
